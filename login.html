@@ -81,13 +81,13 @@
             // LeanCloud Login
             function login(username, password) {
                 AV.User.logIn(username, password).then(function (loginedUser) {
-                    alert("登录成功");
+                    window.location.href = "index.html";
                 }, function (error) {
                     alert(JSON.stringify(error));
                 });
             }
             $(".form-signin form").on("submit", function (event) {
-                event.preventDefault;
+                event.preventDefault();
                 var username = $("#loginInputUsername").val();
                 var password = $("#loginInputPassword").val();
                 login(username, password);

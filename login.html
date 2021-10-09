@@ -42,8 +42,9 @@
     </head>
     <body class="text-center">
         <main class="form-signin">
-            <form class="g-3 needs-validation" novalidate>
+            <form class="g-3">
                 <h1 class="h3 mb-3 fw-normal">登陆</h1>
+                <div class="alert alert-danger d-none" id="loginAlert"></div>
                 <div class="form-floating">
                     <input type="text" class="form-control" id="loginInputUsername" placeholder=" " required>
                     <label for="loginInputUsername">用户名</label>
@@ -59,38 +60,23 @@
         <script src="js/jquery-3.3.1.min.js"></script>
         <script src="js/bootstrap.bundle.min.js"></script>
         <script src="//code.bdstatic.com/npm/leancloud-storage@4.12.0/dist/av-min.js"></script>
+        <script src="js/main.js"></script>
         <script>
-            const { Query, User } = AV;
-            AV.init({
-                appId: "gtJmljD7lYSo9rNzfuH0vPDS-MdYXbMMI",
-                appKey: "Ur1HYhjugdyQSBQPFsoGv4wP"
-            });
-
-            // BootStrap Form Validation
-            var forms = document.querySelectorAll('.needs-validation');
-            Array.prototype.slice.call(forms).forEach(function (form) {
-                form.addEventListener('submit', function (event) {
-                    if (!form.checkValidity()) {
-                        event.preventDefault();
-                        event.stopPropagation();
-                    }
-                    form.classList.add('was-validated');
-                }, false)
-            });
-
             // LeanCloud Login
-            function login(username, password) {
-                AV.User.logIn(username, password).then(function (loginedUser) {
-                    window.location.href = "index.html";
-                }, function (error) {
-                    alert(JSON.stringify(error));
-                });
-            }
             $(".form-signin form").on("submit", function (event) {
                 event.preventDefault();
                 var username = $("#loginInputUsername").val();
                 var password = $("#loginInputPassword").val();
-                login(username, password);
+                if (username && password) {
+                    AV.User.logIn(username, password).then(function (loginedUser) {
+                        window.location.href = "index.html";
+                    }, function (error) {
+                        $("#loginAlert").text(`${error.rawMessage} (Error ${error.code})`).removeClass("d-none");
+                        $(".form-signin form").removeClass('was-validated');
+                    });
+                } else {
+                    $(".form-signin form").addClass('was-validated');
+                }
             });
         </script>
     </body>

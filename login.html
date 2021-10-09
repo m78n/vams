@@ -52,14 +52,15 @@
                     <input type="password" class="form-control" id="loginInputPassword" placeholder=" " required>
                     <label for="loginInputPassword">密码</label>
                 </div>
-                <button class="w-100 btn btn-lg btn-primary" type="submit">登陆</button>
+                <button class="w-100 btn btn-lg btn-primary" type="submit" id="loginSubmit">登陆</button>
             </form>
         </main>
 
         <script src="js/jquery-3.3.1.min.js"></script>
         <script src="js/bootstrap.bundle.min.js"></script>
-        <script src="//cdn.jsdelivr.net/npm/leancloud-storage@4.12.0/dist/av-min.js"></script>
+        <script src="//code.bdstatic.com/npm/leancloud-storage@4.12.0/dist/av-min.js"></script>
         <script>
+            const { Query, User } = AV;
             AV.init({
                 appId: "gtJmljD7lYSo9rNzfuH0vPDS-MdYXbMMI",
                 appKey: "Ur1HYhjugdyQSBQPFsoGv4wP"
@@ -78,14 +79,18 @@
             });
 
             // LeanCloud Login
-            $("form").submit(function () {
-                var username = $("#loginInputUsername").val();
-                var password = $("#loginInputPassword").val();
+            function login(username, password) {
                 AV.User.logIn(username, password).then(function (loginedUser) {
                     alert("登录成功");
                 }, function (error) {
                     alert(JSON.stringify(error));
                 });
+            }
+            $(".form-signin form").on("submit", function (event) {
+                event.preventDefault;
+                var username = $("#loginInputUsername").val();
+                var password = $("#loginInputPassword").val();
+                login(username, password);
             });
         </script>
     </body>

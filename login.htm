@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>登陆 - 志愿活动管理系统</title>
+        <link href="css/bootstrap.min.css" rel="stylesheet">
+        <link href="css/bootstrap-icons.css" rel="stylesheet">
+        <link href="css/font-awesome.min.css" rel="stylesheet">
+        <style>
+            html, body {
+                height: 100%;
+            }
+            body {
+                display: flex;
+                align-items: center;
+                padding-top: 40px;
+                padding-bottom: 40px;
+                background-color: #f5f5f5;
+            }
+            .form-signin {
+                width: 100%;
+                max-width: 330px;
+                padding: 15px;
+                margin: auto;
+            }
+            .form-signin .checkbox {
+                font-weight: 400;
+            }
+            .form-signin .form-floating:focus-within {
+                z-index: 2;
+            }
+            .form-signin input[type="text"] {
+                margin-bottom: -1px;
+                border-bottom-right-radius: 0;
+                border-bottom-left-radius: 0;
+            }
+            .form-signin input[type="password"] {
+                margin-bottom: 10px;
+                border-top-left-radius: 0;
+                border-top-right-radius: 0;
+            }
+        </style>
+    </head>
+    <body class="text-center">
+        <main class="form-signin">
+            <form class="g-3 needs-validation" novalidate>
+                <h1 class="h3 mb-3 fw-normal">登陆</h1>
+                <div class="form-floating">
+                    <input type="text" class="form-control" id="loginInputUsername" placeholder=" " required>
+                    <label for="loginInputUsername">用户名</label>
+                </div>
+                <div class="form-floating">
+                    <input type="password" class="form-control" id="loginInputPassword" placeholder=" " required>
+                    <label for="loginInputPassword">密码</label>
+                </div>
+                <button class="w-100 btn btn-lg btn-primary" type="submit">登陆</button>
+            </form>
+        </main>
+
+        <script src="js/jquery-3.3.1.min.js"></script>
+        <script src="js/bootstrap.bundle.min.js"></script>
+        <script src="//code.bdstatic.com/npm/leancloud-storage@4.12.0/dist/av-min.js"></script>
+        <script>
+            AV.init({
+                appId: "5LHU5GpbjXxQumSwx8Q4M2eo-gzGzoHsz",
+                appKey: "pmupROTNNHRPNgOQUTpu0Uzh",
+                serverURL: "https://5lhu5gpb.lc-cn-n1-shared.com"
+            });
+
+            // BootStrap Form Validation
+            var forms = document.querySelectorAll('.needs-validation');
+            Array.prototype.slice.call(forms).forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false)
+            });
+
+            // LeanCloud Login
+            $("form").submit(function () {
+                var username = $("#loginInputUsername").val();
+                var password = $("#loginInputPassword").val();
+                AV.User.logIn(username, password).then(function (loginedUser) {
+                    alert("登录成功");
+                }, function (error) {
+                    alert(JSON.stringify(error));
+                });
+            });
+        </script>
+    </body>
+</html>

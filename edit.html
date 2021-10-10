@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>编辑活动 - 志愿活动管理系统</title>
+        <link href="css/bootstrap.min.css" rel="stylesheet">
+        <link href="css/bootstrap-icons.css" rel="stylesheet">
+        <link href="css/font-awesome.min.css" rel="stylesheet">
+    </head>
+    <body>
+        <main class="flex-shrink-0 mb-5">
+            <div class="container" id="body-container">
+                <h1 class="mt-5">编辑活动</h1>
+            </div>
+            <div class="modal fade" id="modal-delete" tabindex="-1" aria-labelledby="btn-delete" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modal-delete-label">警告</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        该操作不可逆。您确定要删除吗？
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                        <button type="button" class="btn btn-danger" id="btn-delete">删除</button>
+                    </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <script src="js/jquery-3.3.1.min.js"></script>
+        <script src="js/bootstrap.bundle.min.js"></script>
+        <script src="//code.bdstatic.com/npm/leancloud-storage@4.12.0/dist/av-min.js"></script>
+        <script src="js/main.js"></script>
+        <script>
+            generateNavbar();
+            generateBody(user => {
+                if (user.get("isAdmin")) {
+                    getAttr = function (todo, attr) {
+                        $(`#input-${attr}`).val(todo.get(attr));
+                    };
+                    query = new AV.Query('Activity');
+                    query.get($.getUrlParam("oid")).then((todo) => {
+                        $("#body-container").append(`
+                            <form class="needs-validation" novalidate>
+                                <div class="mb-3">
+                                    <label for="input-title" class="form-label">活动名称</label>
+                                    <input type="text" class="form-control" id="input-title" required>
+                                </div>
+                                <div class="mb-3" id="input-campus">
+                                    <label for="input-campus" class="form-label">所在校区</label>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="input-site" class="form-label">活动地点</label>
+                                    <input type="text" class="form-control" id="input-site" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="input-participantsLimit" class="form-label">人数限制</label>
+                                    <input type="number" class="form-control" id="input-participantsLimit" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="input-desc" class="form-label">活动描述</label>
+                                    <textarea class="form-control" id="input-desc" rows="3"></textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="input-time" class="form-label">活动时间</label>
+                                    <input type="text" class="form-control" id="input-time" aria-describedby="time-help" required>
+                                    <div id="time-help" class="form-text">以 JSON 格式输入。例如：[{"start": 600, "end": "660", "loop": [0,6]}, {"start": 1200, "end": "1260", "loop": [1, 2, 3, 4, 5]}]</div>
+                                </div>
+                                <button type="submit" class="btn btn-primary">更新</button>
+                                <button type="button" class="btn btn-danger"
+                                data-bs-toggle="modal" data-bs-target="#modal-delete">删除</button>
+                            </form>
+                        `);
+                        getAttr(todo, "title");
+                        getAttr(todo, "campus");
+                        getAttr(todo, "site");
+                        getAttr(todo, "participantsLimit");
+                        getAttr(todo, "desc");
+                        $(`#input-time`).val(JSON.stringify(todo.get('time')));
+                        campuses.forEach((item, index) => {
+                            $("#input-campus").append(`
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="radius-campus" id="radius-campus-${index}"
+                                    value="${index}"${todo.get('campus') == index ? " checked" : ""}>
+                                    <label class="form-check-label" for="radius-campus-${index}">${item}</label>
+                                </div>
+                            `);
+                        });
+                    }, (error) => {
+                        $("#body-container").append(getAlert("danger", `${error.rawMessage} (Error ${error.code})`));
+                    });
+                    
+                    // Validation
+                    var forms = document.querySelectorAll('.needs-validation');
+                    Array.prototype.slice.call(forms).forEach(function (form) {
+                        form.addEventListener('submit', function (event) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                            form.classList.add('was-validated');
+                            if (form.checkValidity()) {
+                                const activity = AV.Object.createWithoutData('Activity', $.getUrlParam("oid"));
+                                activity.set("title", $("#input-title").val());
+                                activity.set("campus", Number($("input[type='radio']:checked").val()));
+                                activity.set("site", $("#input-site").val());
+                                activity.set("participantsLimit", Number($("#input-participantsLimit").val()));
+                                if ($("#input-desc").val()) {
+                                    activity.set("desc", $("#input-desc").val());
+                                }
+                                activity.set("time", $.parseJSON($("#input-time").val()));
+                                activity.save().then((todo) => {
+                                    alert("保存成功");
+                                }, (error) => {
+                                    alert(`${error.rawMessage} (Error ${error.code})`);
+                                });
+                            }
+                        }, false);
+                    });
+
+                    // Delete
+                    $("#modal-delete").on('shown.bs.modal', function () {
+                        $("btn-delete").focus();
+                    });
+                    $("#btn-delete").click(() => {
+                        const activity = AV.Object.createWithoutData('Activity', $.getUrlParam("oid"))
+                        activity.destroy().then(() => {
+                            window.location.href = "index.html";
+                        });
+                    });
+                } else {
+                    $("#body-container").append(getAlert("warning", "只有管理员才能编辑活动。"));
+                }
+            });
+        </script>
+    </body>
+</html>

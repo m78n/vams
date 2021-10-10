@@ -28,6 +28,17 @@ function time2str(time) {
     return str.join("</li><li>");
 }
 
+function getHref() {
+    href = window.location.pathname.split("/");
+    return href[href.length - 1];
+}
+$.getUrlParam = function (name) {
+    var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+    var r = window.location.search.substr(1).match(reg);
+    if (r != null) return unescape(r[2]);
+    return null;
+}
+
 // Navbar Items
 function generateNavbar() {
     $("body").prepend(`
@@ -55,11 +66,9 @@ function generateNavbar() {
     query.find().then((items) => {
         let html = "";
         items.forEach((item) => {
-            href = window.location.pathname.split("/");
-            href = href[href.length - 1];
             html += `
                 <li class="nav-item">
-                    <a class="nav-link${item.get("href") == href ? " active" : ""}"
+                    <a class="nav-link${item.get("href") == getHref() ? " active" : ""}"
                       aria-current="page" href="${item.get("href")}">${item.get("title")}</a>
                 </li>
             `;
@@ -82,7 +91,8 @@ function generateNavbar() {
         `);
         if (AV.User.current().get("isAdmin")) {
             $("#navbar-right li ul").prepend(`
-                <li><a class="dropdown-item" href="add.html">新增活动</a></li>
+                <li><a class="dropdown-item${getHref() == "add.html" ? " active" : ""}" href="add.html">新增活动</a></li>
+                <li><hr class="dropdown-divider"></li>
             `);
         }
         $("#user-link-logout").click(function () {
@@ -92,19 +102,23 @@ function generateNavbar() {
     }
 }
 
+function getAlert(type, message) {
+    return `
+        <div class="alert alert-${type}" role="alert">
+            <i class="bi bi-exclamation-circle-fill"></i>
+            ${message}
+        </div>
+    `;
+}
+
 function generateLoginAlert() {
     // Navbar Items
     $("#navbar-right").html(`
-        <a class="btn btn-outline-primary me-2" href="login.html">登陆</a>
+        <a class="btn btn-outline-primary me-2" href="login.html?return=${window.location.href}">登陆</a>
     `);
 
     // Page Body
-    $("#body-container").append(`
-        <div class="alert alert-danger" role="alert">
-            <i class="bi bi-exclamation-circle-fill"></i>
-            请先<a href="login.html">登录</a>。
-        </div>
-    `);
+    $("#body-container").append(getAlert("danger", `请先<a href="login.html?return=${window.location.href}">登录</a>。`));
 }
 
 function generateBody(success, failure = generateLoginAlert) {

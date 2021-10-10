@@ -46,7 +46,7 @@
                     query = new AV.Query('Activity');
                     query.get($.getUrlParam("oid")).then((todo) => {
                         $("#body-container").append(`
-                            <form class="needs-validation" novalidate>
+                            <form class="needs-validation" novalidate autocomplete="off">
                                 <div class="mb-3">
                                     <label for="input-title" class="form-label">活动名称</label>
                                     <input type="text" class="form-control" id="input-title" required>
@@ -91,32 +91,34 @@
                                 </div>
                             `);
                         });
+                        // Prevent binding event before generating the form
+                        todo.fetch().then(() => {
+                            // Validation
+                            var forms = document.querySelectorAll('.needs-validation');
+                            Array.prototype.slice.call(forms).forEach(function (form) {
+                                form.addEventListener('submit', function (event) {
+                                    event.preventDefault();
+                                    event.stopPropagation();
+                                    form.classList.add('was-validated');
+                                    if (form.checkValidity()) {
+                                        const activity = AV.Object.createWithoutData('Activity', $.getUrlParam("oid"));
+                                        activity.set("title", $("#input-title").val());
+                                        activity.set("campus", Number($("input[type='radio']:checked").val()));
+                                        activity.set("site", $("#input-site").val());
+                                        activity.set("participantsLimit", Number($("#input-participantsLimit").val()));
+                                        activity.set("desc", $("#input-desc").val());
+                                        activity.set("time", $.parseJSON($("#input-time").val()));
+                                        activity.save().then(() => {
+                                            alert("保存成功");
+                                        }, error => {
+                                            generateErrorAlert(error);
+                                        });
+                                    }
+                                }, false);
+                            });
+                        });
                     }, (error) => {
                         generateErrorAlert(error);
-                    });
-                    
-                    // Validation
-                    var forms = document.querySelectorAll('.needs-validation');
-                    Array.prototype.slice.call(forms).forEach(function (form) {
-                        form.addEventListener('submit', function (event) {
-                            event.preventDefault();
-                            event.stopPropagation();
-                            form.classList.add('was-validated');
-                            if (form.checkValidity()) {
-                                const activity = AV.Object.createWithoutData('Activity', $.getUrlParam("oid"));
-                                activity.set("title", $("#input-title").val());
-                                activity.set("campus", Number($("input[type='radio']:checked").val()));
-                                activity.set("site", $("#input-site").val());
-                                activity.set("participantsLimit", Number($("#input-participantsLimit").val()));
-                                activity.set("desc", $("#input-desc").val());
-                                activity.set("time", $.parseJSON($("#input-time").val()));
-                                activity.save().then(todo => {
-                                    alert("保存成功");
-                                }, error => {
-                                    generateErrorAlert(error);
-                                });
-                            }
-                        }, false);
                     });
 
                     // Delete
@@ -124,7 +126,7 @@
                         $("btn-delete").focus();
                     });
                     $("#btn-delete").click(() => {
-                        const activity = AV.Object.createWithoutData('Activity', $.getUrlParam("oid"))
+                        const activity = AV.Object.createWithoutData('Activity', $.getUrlParam("oid"));
                         activity.destroy().then(() => {
                             window.location.href = "index.html";
                         }, (error) => {

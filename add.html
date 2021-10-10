@@ -24,7 +24,7 @@
             generateBody(user => {
                 if (user.get("isAdmin")) {
                     $("#body-container").append(`
-                        <form class="needs-validation" novalidate>
+                        <form class="needs-validation" novalidate autocomplete="off">
                             <div class="mb-3">
                                 <label for="input-title" class="form-label">活动名称</label>
                                 <input type="text" class="form-control" id="input-title" required>
@@ -64,8 +64,8 @@
 
                     // Validation
                     var forms = document.querySelectorAll('.needs-validation');
-                    Array.prototype.slice.call(forms).forEach(function (form) {
-                        form.addEventListener('submit', function (event) {
+                    Array.prototype.slice.call(forms).forEach(form => {
+                        form.addEventListener('submit', event => {
                             event.preventDefault();
                             event.stopPropagation();
                             form.classList.add('was-validated');

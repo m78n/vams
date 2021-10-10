@@ -80,6 +80,11 @@ function generateNavbar() {
                 </ul>
             </li>
         `);
+        if (AV.User.current().get("isAdmin")) {
+            $("#navbar-right li ul").prepend(`
+                <li><a class="dropdown-item" href="add.html">新增活动</a></li>
+            `);
+        }
         $("#user-link-logout").click(function () {
             AV.User.logOut();
             window.location.reload();

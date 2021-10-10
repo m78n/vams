@@ -71,24 +71,25 @@
                     var forms = document.querySelectorAll('.needs-validation');
                     Array.prototype.slice.call(forms).forEach(function (form) {
                         form.addEventListener('submit', function (event) {
-                            if (!form.checkValidity()) {
-                                event.preventDefault();
-                                event.stopPropagation();
-                            } else {
-                                let activity = new AV.Object("Activity");
-                                activity.set("title", $("add-input-title").val());
+                            event.preventDefault();
+                            event.stopPropagation();
+                            form.classList.add('was-validated');
+                            if (form.checkValidity()) {
+                                const activity = new AV.Object("Activity");
+                                activity.set("title", $("#add-input-title").val());
                                 activity.set("campus", Number($("input[type='radio']:checked").val()));
-                                activity.set("site", $("add-input-site").val());
-                                activity.set("participantsLimit", Number($("add-input-participantsLimit").val()));
-                                activity.set("desc", $("add-input-desc").val());
-                                activity.set("time", $("add-input-time").val());
+                                activity.set("site", $("#add-input-site").val());
+                                activity.set("participantsLimit", Number($("#add-input-participantsLimit").val()));
+                                if ($("#add-input-desc").val()) {
+                                    activity.set("desc", $("#add-input-desc").val());
+                                }
+                                activity.set("time", $.parseJSON($("#add-input-time").val()));
                                 activity.save().then((todo) => {
                                     alert("保存成功");
                                 }, (error) => {
                                     alert(`${error.rawMessage} (Error ${error.code})`);
                                 });
                             }
-                            form.classList.add('was-validated');
                         }, false);
                     });
                 } else {

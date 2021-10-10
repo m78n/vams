@@ -26,7 +26,7 @@
                     AV.User.current().set("currentCampus", des).save().then((todo) => {
                         window.location.reload();
                     }, (error) => {
-                        console.log(error);
+                        generateErrorAlert(error);
                     });
                 }
 
@@ -54,17 +54,11 @@
                     items.forEach((item) => {
                         let time = item.get("time");
                         let html = `
-                            <div class="list-group-item" aria-current="true">
+                            <a href="detail.html?oid=${item.get("objectId")}"
+                              class="list-group-item list-group-item-action" aria-current="true">
                                 <h5 class="mb-1">${item.get("title")}</h5>
-                                <ul class="mb-1 list-unstyled">
-                                    <li><i class="bi bi-people-fill"></i> 人数：${item.get("participantsLimit")}</li>
-                                    <li><i class="bi bi-geo-alt-fill"></i> 地点：${item.get("site")}</li>
-                                    <li><i class="bi bi-clock-fill"></i> 时间：</li>
-                                    <ul>
-                                        <li>${time2str(time)}</li>
-                                    </ul>
-                                </ul>
-                            </div>
+                                <i class="bi bi-geo-alt-fill"></i> 地点：${item.get("site")}
+                            </a>
                         `;
                         $(`#activity-list`).append(html);
                     });
@@ -72,7 +66,7 @@
                         $("#body-container").append(getAlert("secondary", "这里目前没有志愿活动。"));
                     }
                 }).catch((error) => {
-                    alert(JSON.stringify(error));
+                    generateErrorAlert(error);
                 });
             });
         </script>

@@ -47,7 +47,7 @@
                             <div class="mb-3">
                                 <label for="input-time" class="form-label">活动时间</label>
                                 <input type="text" class="form-control" id="input-time" aria-describedby="time-help" required>
-                                <div id="time-help" class="form-text">以 JSON 格式输入。例如：[{"start": 600, "end": "660", "loop": [0,6]}, {"start": 1200, "end": "1260", "loop": [1, 2, 3, 4, 5]}]</div>
+                                <div id="time-help" class="form-text">以 JSON 格式输入一个数组。数组的每个元素是包含三个数字的数组 <code>[weekday, start, end]</code>。</div>
                             </div>
                             <button type="submit" class="btn btn-primary">提交</button>
                         </form>
@@ -82,7 +82,7 @@
                                 activity.save().then((todo) => {
                                     alert("保存成功");
                                 }, (error) => {
-                                    alert(`${error.rawMessage} (Error ${error.code})`);
+                                    generateErrorAlert(error);
                                 });
                             }
                         }, false);

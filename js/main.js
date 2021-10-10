@@ -52,8 +52,8 @@ function generateNavbar() {
                         <span class="navbar-toggler-icon"></span>
                     </button>
                     <div class="collapse navbar-collapse justify-content-between" id="navbarNavDropdown">
-                        <ul class="navbar-nav" id="navbar-left"></ul>
-                        <ul class="navbar-nav" id="navbar-right"></ul>
+                        <ul class="navbar-nav" id="navbar-left"></span></ul>
+                        <ul class="navbar-nav" id="navbar-right"></span></ul>
                     </div> <!-- collapse navbar-collapse -->
                 </div> <!-- container-fluid -->
             </nav>
@@ -119,6 +119,10 @@ function generateLoginAlert() {
 
     // Page Body
     $("#body-container").append(getAlert("danger", `请先<a href="login.html?return=${window.location.href}">登录</a>。`));
+}
+
+function generateErrorAlert(error) {
+    $("#body-container").append(getAlert("danger", `${error.rawMessage} (Error ${error.code})`));
 }
 
 function generateBody(success, failure = generateLoginAlert) {

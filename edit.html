@@ -86,7 +86,7 @@
                             $("#input-campus").append(`
                                 <div class="form-check">
                                     <input class="form-check-input" type="radio" name="radius-campus" id="radius-campus-${index}"
-                                    value="${index}"${todo.get('campus') == index ? " checked" : ""}>
+                                      value="${index}"${todo.get('campus') == index ? " checked" : ""}>
                                     <label class="form-check-label" for="radius-campus-${index}">${item}</label>
                                 </div>
                             `);
@@ -108,13 +108,10 @@
                                 activity.set("campus", Number($("input[type='radio']:checked").val()));
                                 activity.set("site", $("#input-site").val());
                                 activity.set("participantsLimit", Number($("#input-participantsLimit").val()));
-                                if ($("#input-desc").val()) {
-                                    activity.set("desc", $("#input-desc").val());
-                                }
+                                activity.set("desc", $("#input-desc").val());
                                 activity.set("time", $.parseJSON($("#input-time").val()));
                                 activity.save().then(todo => {
                                     alert("保存成功");
-                                    window.location.href = "index.html";
                                 }, error => {
                                     generateErrorAlert(error);
                                 });

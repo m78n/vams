@@ -75,9 +75,7 @@
                                 activity.set("campus", Number($("input[type='radio']:checked").val()));
                                 activity.set("site", $("#input-site").val());
                                 activity.set("participantsLimit", Number($("#input-participantsLimit").val()));
-                                if ($("#input-desc").val()) {
-                                    activity.set("desc", $("#input-desc").val());
-                                }
+                                activity.set("desc", $("#input-desc").val());
                                 activity.set("time", $.parseJSON($("#input-time").val()));
                                 activity.save().then((todo) => {
                                     alert("保存成功");

@@ -7,31 +7,12 @@
         <link href="css/bootstrap.min.css" rel="stylesheet">
         <link href="css/bootstrap-icons.css" rel="stylesheet">
         <link href="css/font-awesome.min.css" rel="stylesheet">
-        <style>
-            main {
-                padding-top: 60px;
-            }
-        </style>
     </head>
     <body>
-        <header>
-            <nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-dark">
-                <div class="container">
-                    <a class="navbar-brand" href="index.html">志愿活动管理系统</a>
-                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
-                        <span class="navbar-toggler-icon"></span>
-                    </button>
-                    <div class="collapse navbar-collapse justify-content-between" id="navbarNavDropdown">
-                        <ul class="navbar-nav" id="navbar-left"></ul>
-                        <ul class="navbar-nav" id="navbar-right"></ul>
-                    </div><!-- collapse navbar-collapse -->
-                </div><!-- container-fluid -->
-            </nav>
-        </header>
         <main class="flex-shrink-0">
             <div class="container" id="body-container">
                 <h1 class="mt-5">目前活动一览</h1>
-            </div><!-- container -->
+            </div>
         </main>
         
         <script src="js/jquery-3.3.1.min.js"></script>
@@ -40,9 +21,8 @@
         <script src="js/main.js"></script>
         <script>
             generateNavbar();
-            if (AV.User.current()) {
-                let user = AV.User.current();
-                function changeCampus(des) {
+            generateBody((user) => {
+                changeCampus = function (des) {
                     AV.User.current().set("currentCampus", des).save().then((todo) => {
                         window.location.reload();
                     }, (error) => {
@@ -99,20 +79,7 @@
                 }).catch((error) => {
                     alert(JSON.stringify(error));
                 });
-            } else {
-                // Navbar Items
-                $("#navbar-right").html(`
-                    <a class="btn btn-outline-primary me-2" href="login.html">登陆</a>
-                `);
-
-                // Page Body
-                $("#body-container").append(`
-                    <div class="alert alert-danger" role="alert">
-                        <i class="bi bi-exclamation-circle-fill"></i>
-                        请先<a href="login.html">登录</a>。
-                    </div>
-                `);
-            }
+            });
         </script>
     </body>
 </html>

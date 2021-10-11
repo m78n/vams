@@ -1,9 +1,9 @@
 {
   "dependencies": {
-    "bootstraps": "5.1.1",
+    "bootstrap": "5.1.1",
     "jquery": "3.3.1",
     "echarts": "5.2.1",
-    "Fonts-Awesome": "5.15.4",
-    "leancloud-javascript-sdk": "4.12.0"
+    "Font-Awesome": "5.15.4",
+    "leancloud/javascript-sdk": "4.12.0"
   }
 }

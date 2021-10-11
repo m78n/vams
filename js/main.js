@@ -16,17 +16,6 @@ function m2hhmm(m) {
     mm = ("0" + String(mm)).slice(-2);
     return `${hh}:${mm}`;
 }
-function time2str(time) {
-    let str = new Array;
-    time.forEach((item) => {
-        let week = new Array;
-        item.loop.forEach((item) => {
-            week.push(weekday[item]);
-        });
-        str.push(`每周${week.join("、")} ${m2hhmm(item.start)} - ${m2hhmm(item.end)}`);
-    });
-    return str.join("</li><li>");
-}
 
 function getHref() {
     href = window.location.pathname.split("/");
@@ -126,6 +115,7 @@ function generateErrorAlert(error) {
 }
 
 function generateBody(success, failure = generateLoginAlert) {
+    generateNavbar();
     if (AV.User.current()) {
         let user = AV.User.current();
         success(user);

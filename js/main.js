@@ -21,12 +21,10 @@ function logout() {
     window.location.reload();
 }
 
-const app = Vue.createApp({
-    components: {
-        "navbar": navbar,
-        "base-layout": baseLayout,
-        "alert": alerts,
-        "alert-login": alertLogin,
-        "alert-error": alertError
-    }
-}).mount("body");
+const app = Vue.createApp({})
+.component("navbar", navbar)
+.component("base-layout", abaseLayoutlerts)
+.component("alert", alerts)
+.component("alert-login", alertLogin)
+.component("alert-error", alertError)
+.mount("body");

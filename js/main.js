@@ -23,7 +23,7 @@ function logout() {
 
 const app = Vue.createApp({})
 .component("navbar", navbar)
-.component("base-layout", abaseLayoutlerts)
+.component("base-layout", baseLayout)
 .component("alert", alerts)
 .component("alert-login", alertLogin)
 .component("alert-error", alertError)

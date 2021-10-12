@@ -97,7 +97,6 @@ app.component("base-layout", {
     data () {
         return {
             user: AV.User.current(),
-            campus: AV.User.current().get("currentCampus"),
             campuses: ["西土城校区", "沙河校区", "宏福校区"]
         };
     },

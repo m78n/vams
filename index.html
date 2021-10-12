@@ -9,64 +9,32 @@
         <link href="css/font-awesome.min.css" rel="stylesheet">
     </head>
     <body>
-        <main class="flex-shrink-0 mt-5 mb-5">
-            <div class="container" id="body-container">
-                <h1>目前活动一览</h1>
-            </div>
-        </main>
+        <navbar></navbar>
+        <base-layout title="目前活动一览">
+            <div class="mt-2 list-group list-group-flush" id="list-activities"></div>
+        </base-layout>
         
         <script src="js/jquery-3.3.1.min.js"></script>
         <script src="js/bootstrap.bundle.min.js"></script>
         <script src="//code.bdstatic.com/npm/leancloud-storage@4.12.0/dist/av-min.js"></script>
+        <script src="js/vue.global.prod.js"></script>
         <script src="js/main.js"></script>
         <script>
-            generateBody((user) => {
-                changeCampus = function (des) {
-                    AV.User.current().set("currentCampus", des).save().then((todo) => {
-                        window.location.reload();
-                    }, (error) => {
-                        generateErrorAlert(error);
-                    });
-                }
-
-                // Page Body
-                $("#body-container").append(`
-                    <div class="dropdown">
-                        <button class="btn btn-secondary dropdown-toggle" type="button" id="campus-dropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                            ${campuses[user.get("currentCampus")]}
-                        </button>
-                        <ul class="dropdown-menu" aria-labelledby="campus-dropdown" id="campus-dropdown-list"></ul>
-                    </div>
-                    <div class="mt-2 list-group list-group-flush" id="activity-list"></div>
+            let query = new AV.Query("Activity");
+            query.descending("createdAt");
+            query.find().then(e => {
+                $("#list-activities").html(`
+                    <a v-for="item in activities" :href="'detail.html?oid=' + item.get('objectId')"
+                      class="list-group-item list-group-item-action" aria-current="true">
+                        <h5 class="mb-1">{{item.get("title")}}</h5>
+                        <i class="bi bi-geo-alt-fill"></i> {{item.get("site")}}
+                    </a>
                 `);
-                campuses.forEach((item, index) => {
-                    $("#campus-dropdown-list").append(`
-                        <li><a class="dropdown-item" href="javascript: changeCampus(${index});">${item}</a></li>
-                    `);
-                });
-
-                // Search Activities
-                query = new AV.Query("Activity");
-                query.equalTo('campus', user.get("currentCampus"));
-                query.descending("createdAt");
-                query.find().then((items) => {
-                    items.forEach((item) => {
-                        let time = item.get("time");
-                        let html = `
-                            <a href="detail.html?oid=${item.get("objectId")}"
-                              class="list-group-item list-group-item-action" aria-current="true">
-                                <h5 class="mb-1">${item.get("title")}</h5>
-                                <i class="bi bi-geo-alt-fill"></i> ${item.get("site")}
-                            </a>
-                        `;
-                        $(`#activity-list`).append(html);
-                    });
-                    if (!$(`#activity-list`).text()) {
-                        $("#body-container").append(getAlert("secondary", "这里目前没有志愿活动。"));
+                Vue.createApp({
+                    data () {
+                        return { "activities": e };
                     }
-                }).catch((error) => {
-                    generateErrorAlert(error);
-                });
+                }).mount("#list-activities");
             });
         </script>
     </body>

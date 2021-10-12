@@ -20,26 +20,27 @@
         <script src="//code.bdstatic.com/npm/leancloud-storage@4.12.0/dist/av-min.js"></script>
         <script src="js/echarts.min.js"></script>
         <script src="js/main.js"></script>
+        <script src="js/time.js"></script>
         <script>
             generateBody((user) => {
                 query = new AV.Query('Activity');
-                query.get($.getUrlParam("oid")).then((todo) => {
-                    $("title").text(`${todo.get("title")} - 活动详情 - 志愿活动管理系统`);
-                    $("h1").text(todo.get("title"));
+                query.get($.getUrlParam("oid")).then((activity) => {
+                    $("title").text(`${activity.get("title")} - 活动详情 - 志愿活动管理系统`);
+                    $("h1").text(activity.get("title"));
                     $("#body-container").append(`
                         <div class="table-responsive">
                             <table class="table" id="body-table">
                                 <tbody>
                                     <tr>
                                         <th scope="row" width="50"><i class="bi bi-people-fill"></i></th>
-                                        <td>${todo.get("participantsLimit")}</td>
+                                        <td>${activity.get("participantsLimit")}</td>
                                     </tr>
                                     <tr>
                                         <th scope="row"><i class="bi bi-geo-alt-fill"></i></th>
                                         <td>
-                                            ${campuses[todo.get("campus")]}
+                                            ${campuses[activity.get("campus")]}
                                             <i class="bi bi-chevron-right"></i>
-                                            ${todo.get("site")}
+                                            ${activity.get("site")}
                                         </td>
                                     </tr>
                                     <tr>
@@ -50,73 +51,26 @@
                             </table>
                         </div>
                     `);
-                    weekday.forEach((item) => {
-                        $("#time-table").append(`<tr><th>${item}</th><td><div class="progress"></div></td></tr>`);
-                    });
-
-                    todo.get("time").forEach((item, index) => {
-                        var myChart = echarts.init(document.getElementById('time-container'));
-                        myChart.setOption({
-                            title: { show: false },
-                            grid: { height: 300, top: 40 },
-                            xAxis: {
-                                min: 0,
-                                max: 1440,
-                                interval: 360,
-                                axisLabel: {
-                                    formatter: val => {return m2hhmm(val);}
-                                },
-                                position: "top"
-                            },
-                            yAxis: {
-                                data: weekday,
-                                inverse: true
-                            },
-                            tooltip: {
-                                formatter: function (params) {
-                                    return "星期" + weekday[params.value[0]] + " " + m2hhmm(params.value[1]) + " - " + m2hhmm(params.value[2]);
-                                }
-                            },
-                            series: {
-                                type: 'custom',
-                                renderItem: (params, api) => {
-                                    var categoryIndex = api.value(0);
-                                    var start = api.coord([api.value(1), categoryIndex]);
-                                    var end = api.coord([api.value(2), categoryIndex]);
-                                    var height = api.size([0, 1])[1] * 0.6;
-
-                                    var rectShape = echarts.graphic.clipRectByRect({
-                                        x: start[0],
-                                        y: start[1] - height / 2,
-                                        width: end[0] - start[0],
-                                        height: height
-                                    }, {
-                                        x: params.coordSys.x,
-                                        y: params.coordSys.y,
-                                        width: params.coordSys.width,
-                                        height: params.coordSys.height
-                                    });
-
-                                    return rectShape && {
-                                        type: 'rect',
-                                        shape: rectShape,
-                                        style: api.style()
-                                    };
-                                },
-                                data: todo.get("time")
-                            }
-                        });
-                    });
-                    if (todo.get("desc")) {
+                    generateTimeChart("time-container", activity);
+                    if (activity.get("desc")) {
                         $("#body-table tbody").append(`
                             <tr>
                                 <th scope="row"><i class="bi bi-chat-square-text-fill"></i></th>
-                                <td>${todo.get("desc")}</td>
+                                <td>${activity.get("desc")}</td>
                             </tr>
                         `);
                     }
+                    // Buttons
+                    $("#body-container").append(`
+                        <div class="btn-group">
+                            <a href="javascript: void();" class="btn btn-outline-success">
+                                <i class="bi bi-calendar-plus-fill"></i>
+                                加入意愿
+                            </a>
+                        </div>
+                    `);
                     if (user.get("isAdmin")) {
-                        $("#body-table").after(`
+                        $("#body-container").append(`
                             <div class="btn-group">
                                 <a href="edit.html?oid=${$.getUrlParam("oid")}" class="btn btn-outline-primary">
                                     <i class="bi bi-pen-fill"></i>

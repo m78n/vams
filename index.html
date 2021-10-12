@@ -11,31 +11,72 @@
     <body>
         <navbar></navbar>
         <base-layout title="目前活动一览">
-            <div class="mt-2 list-group list-group-flush" id="list-activities"></div>
+            <button class="btn btn-primary disabled placeholder-wave" type="button">
+                <i class="bi bi-geo-alt-fill"></i>
+                &emsp;&emsp;&emsp;&emsp;&emsp;
+            </button>
+            <div class="mt-2 list-group list-group-flush">
+                <a v-for="item in [0,1]" href="javascript: void();"
+                  class="list-group-item list-group-item-action disabled placeholder-wave">
+                    <h5 class="mb-1"><span class="placeholder col-6"></span></h5>
+                    <i class="bi bi-geo-alt-fill"></i> <span class="placeholder col-5"></span>
+                </a>
+            </div>
         </base-layout>
         
+        <script src="//code.bdstatic.com/npm/leancloud-storage@4.12.0/dist/av-min.js"></script>
         <script src="js/jquery-3.3.1.min.js"></script>
         <script src="js/bootstrap.bundle.min.js"></script>
-        <script src="//code.bdstatic.com/npm/leancloud-storage@4.12.0/dist/av-min.js"></script>
         <script src="js/vue.global.prod.js"></script>
+        <script src="js/components.js"></script>
         <script src="js/main.js"></script>
         <script>
             if (AV.User.current()) {
                 let query = new AV.Query("Activity");
                 query.descending("createdAt");
+                campus = AV.User.current().get("currentCampus");
+                selection = Number($.getUrlParam("campus"));
+                if (selection) {
+                    isCurrent = selection == campus;
+                    campus = Number($.getUrlParam("campus"));
+                } else {
+                    isCurrent = true;
+                }
+                query.equalTo("campus", campus);
                 query.find().then(e => {
-                    $("#list-activities").html(`
-                        <a v-for="item in activities" :href="'detail.html?oid=' + item.get('objectId')"
-                          class="list-group-item list-group-item-action" aria-current="true">
-                            <h5 class="mb-1">{{item.get("title")}}</h5>
-                            <i class="bi bi-geo-alt-fill"></i> {{item.get("site")}}
-                        </a>
+                    $("#body-container").html(`
+                        <div class="dropdown mb-3">
+                            <button class="btn btn-primary dropdown-toggle"
+                              type="button" id="btn-dropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-geo-alt-fill"></i>
+                                {{campuses[campus]}}
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="btn-dropdown">
+                                <li v-for="(item, index) in campuses">
+                                    <a class="dropdown-item" :href="'index.html?campus=' + index">{{item}}</a>
+                                </li>
+                            </ul>
+                        </div>
+                        <alert v-if="!isCurrent" type="info" message="本页显示的志愿活动并非在您所在校区举行。"></alert>
+                        <alert v-if="!activities.length" type="secondary" message="这里还没有志愿活动。"></alert>
+                        <div class="mt-2 list-group list-group-flush" id="list-activities">
+                            <a v-if="activities.length" v-for="item in activities" :href="'detail.html?oid=' + item.get('objectId')"
+                              class="list-group-item list-group-item-action" aria-current="true">
+                                <h5 class="mb-1">{{item.get("title")}}</h5>
+                                <i class="bi bi-geo-alt-fill"></i> {{item.get("site")}}
+                            </a>
+                        </div>
                     `);
                     Vue.createApp({
                         data () {
-                            return { "activities": e };
+                            return {
+                                "activities": e,
+                                "campuses": ["西土城校区", "沙河校区", "宏福校区"],
+                                "campus": campus,
+                                "isCurrent": isCurrent
+                            };
                         }
-                    }).mount("#list-activities");
+                    }).component("alert", _alert).mount("#body-container");
                 });
             }
         </script>

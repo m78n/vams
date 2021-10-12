@@ -10,6 +10,7 @@ css/
     (Font Awesome Stylesheets)
 js/
     main.js
+    components.js
     (BootStrap JavaScript 插件)
     (jQuery 3.3.1)
     (Apache ECharts)
@@ -33,10 +34,11 @@ index.html
         <navbar></navbar>
         <base-layout title=""></base-layout>
         
+        <script src="//code.bdstatic.com/npm/leancloud-storage@4.12.0/dist/av-min.js"></script>
         <script src="js/jquery-3.3.1.min.js"></script>
         <script src="js/bootstrap.bundle.min.js"></script>
-        <script src="//code.bdstatic.com/npm/leancloud-storage@4.12.0/dist/av-min.js"></script>
         <script src="js/vue.global.prod.js"></script>
+        <script src="js/components.js"></script>
         <script src="js/main.js"></script>
         <script>
             if (AV.User.current()) {}

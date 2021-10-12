@@ -11,7 +11,7 @@
     <body>
         <navbar></navbar>
         <base-layout title="目前活动一览">
-            <button class="btn btn-primary disabled placeholder-wave" type="button">
+            <button class="btn btn-primary disabled placeholder-wave mb-3" type="button">
                 <i class="bi bi-geo-alt-fill"></i>
                 &emsp;&emsp;&emsp;&emsp;&emsp;
             </button>
@@ -76,7 +76,7 @@
                                 "isCurrent": isCurrent
                             };
                         }
-                    }).component("alert", _alert).mount("#body-container");
+                    }).component("alert", alerts).mount("#body-container");
                 });
             }
         </script>

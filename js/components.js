@@ -78,7 +78,7 @@ const baseLayout = {
     template: `
         <main class="flex-shrink-0 mt-5 mb-5" style="padding-top: 60px;">
             <div class="container">
-                <h1>{{title}}</h1>
+                <h1 v-if="!hideTitle">{{title}}</h1>
                 <div id="body-container">
                     <div v-if="user">
                         <slot></slot>
@@ -92,7 +92,7 @@ const baseLayout = {
     `
 };
 
-const _alert = {
+const alerts = {
     props: ["type", "message"],
     template: `
         <div :class="'alert alert-' + type" role="alert">
@@ -113,6 +113,6 @@ const alertError = {
     props: ["error"],
     template: `
         <alert type="danger"
-          message="{{error.rawMessage}} (Error {{error.code}}"></alert>
+          :message="error.rawMessage + ' (Error ' + error.code + ')'"></alert>
     `
 };

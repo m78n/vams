@@ -16,17 +16,17 @@ $.getUrlParam = function (name) {
     return null;
 }
 
-const app = Vue.createApp({});
-
 function logout() {
     AV.User.logOut();
     window.location.reload();
 }
 
-app.component("navbar", navbar);
-app.component("base-layout", baseLayout);
-app.component("alert", _alert);
-app.component("alert-login", alertLogin);
-app.component("alert-error", alertError);
-
-app.mount("body");
+const app = Vue.createApp({
+    components: {
+        "navbar": navbar,
+        "base-layout": baseLayout,
+        "alert": alerts,
+        "alert-login": alertLogin,
+        "alert-error": alertError
+    }
+}).mount("body");

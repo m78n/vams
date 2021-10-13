@@ -17,6 +17,8 @@ js/
     (Vue 3)
 login.html
 index.html
+detail.html
+edit.html
 ```
 
 一般的，html 页面需要包含：

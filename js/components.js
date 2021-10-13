@@ -11,7 +11,7 @@ const navbar = {
             adminDropdownItems: [
                 {
                     "title": "新建活动",
-                    "href": "add.html"
+                    "href": "edit.html"
                 }
             ],
             accountDropdownItems: [
@@ -70,8 +70,7 @@ const navbar = {
 const baseLayout = {
     data () {
         return {
-            user: AV.User.current(),
-            campuses: ["西土城校区", "沙河校区", "宏福校区"]
+            user: AV.User.current()
         };
     },
     props: ["title"],
@@ -87,6 +86,7 @@ const baseLayout = {
                         <alert-login></alert-login>
                     </div>
                 </div>
+                <slot name="addition"></slot>
             </div>
         </main>
     `

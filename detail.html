@@ -24,6 +24,9 @@
                         <td><p class="placeholder col-12 mb-0"></p></td>
                     </tr>
                 </table>
+                <button class="btn btn-primary disabled placeholder-wave mb-3" type="button">
+                    &emsp;&emsp;&emsp;&emsp;&emsp;
+                </button>
             </div>
         </base-layout>
         
@@ -70,10 +73,23 @@
                                 </tr>
                             </table>
                         </div>
+                        <div class="btn-group" role="group">
+                            <a href="javascript: void()" class="btn btn-primary">
+                                <i class="bi bi-calendar-plus-fill"></i>
+                                加入意愿
+                            </a>
+                        </div>
+                        <div v-if="isAdmin" class="btn-group ms-2" role="group">
+                            <a href="edit.html?oid=${oid}" class="btn btn-secondary">
+                                <i class="bi bi-pen-fill"></i>
+                                编辑
+                            </a>
+                        </div>
                     `);
                     Vue.createApp({
                         data () {
                             return {
+                                "isAdmin": AV.User.current().get("isAdmin"),
                                 "attributes": attributes
                             };
                         }
@@ -90,7 +106,7 @@
                         template: `<alert-error :error="error"></alert-error>`
                     })
                     .component("alert-error", alertError)
-                    .component("alert", alerts) // ?
+                    .component("alert", alerts)
                     .mount("#body-container");
                 });
             };

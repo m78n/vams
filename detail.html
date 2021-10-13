@@ -7,128 +7,98 @@
         <link href="css/bootstrap.min.css" rel="stylesheet">
         <link href="css/bootstrap-icons.css" rel="stylesheet">
         <link href="css/font-awesome.min.css" rel="stylesheet">
+        <style>
+            th {
+                width: 50px;
+            }
+        </style>
     </head>
     <body>
-        <main class="flex-shrink-0 mt-5 mb-5">
-            <div class="container" id="body-container">
-                <h1></h1>
+        <navbar></navbar>
+        <base-layout hideTitle="true" title="">
+            <h1 class="placeholder-wave"><span class="placeholder col-5"></span>&emsp;</h1>
+            <div class="table-responsive">
+                <table class="table placeholder-wave"><tbody>
+                    <tr v-for="item in ['people-fill', 'geo-alt-fill', 'clock-fill']">
+                        <th scope="row"><i :class="'bi bi-' + item"></i></th>
+                        <td><p class="placeholder col-12 mb-0"></p></td>
+                    </tr>
+                </tbody></table>
+                <button class="btn btn-primary disabled placeholder-wave mb-3" type="button">
+                    &emsp;&emsp;&emsp;&emsp;&emsp;
+                </button>
             </div>
-        </main>
+        </base-layout>
         
-        <script src="js/jquery-3.3.1.min.js"></script>
-        <script src="js/bootstrap.bundle.min.js"></script>
         <script src="//code.bdstatic.com/npm/leancloud-storage@4.12.0/dist/av-min.js"></script>
+        <script src="js/jquery-3.3.1.min.js"></script>
         <script src="js/echarts.min.js"></script>
+        <script src="js/bootstrap.bundle.min.js"></script>
+        <script src="js/vue.global.prod.js"></script>
+        <script src="js/components.js"></script>
         <script src="js/main.js"></script>
+        <script src="js/time.js"></script>
         <script>
-            generateBody((user) => {
+            if (AV.User.current()) {
+                oid = $.getUrlParam("oid") ? $.getUrlParam("oid") : "";
                 query = new AV.Query('Activity');
-                query.get($.getUrlParam("oid")).then((todo) => {
-                    $("title").text(`${todo.get("title")} - 活动详情 - 志愿活动管理系统`);
-                    $("h1").text(todo.get("title"));
-                    $("#body-container").append(`
-                        <div class="table-responsive">
-                            <table class="table" id="body-table">
-                                <tbody>
-                                    <tr>
-                                        <th scope="row" width="50"><i class="bi bi-people-fill"></i></th>
-                                        <td>${todo.get("participantsLimit")}</td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row"><i class="bi bi-geo-alt-fill"></i></th>
-                                        <td>
-                                            ${campuses[todo.get("campus")]}
-                                            <i class="bi bi-chevron-right"></i>
-                                            ${todo.get("site")}
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row"><i class="bi bi-clock-fill"></i></th>
-                                        <td><div id="time-container" style="width: 480px; height:360px;"></div></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    `);
-                    weekday.forEach((item) => {
-                        $("#time-table").append(`<tr><th>${item}</th><td><div class="progress"></div></td></tr>`);
-                    });
-
-                    todo.get("time").forEach((item, index) => {
-                        var myChart = echarts.init(document.getElementById('time-container'));
-                        myChart.setOption({
-                            title: { show: false },
-                            grid: { height: 300, top: 40 },
-                            xAxis: {
-                                min: 0,
-                                max: 1440,
-                                interval: 360,
-                                axisLabel: {
-                                    formatter: val => {return m2hhmm(val);}
-                                },
-                                position: "top"
-                            },
-                            yAxis: {
-                                data: weekday,
-                                inverse: true
-                            },
-                            tooltip: {
-                                formatter: function (params) {
-                                    return "星期" + weekday[params.value[0]] + " " + m2hhmm(params.value[1]) + " - " + m2hhmm(params.value[2]);
-                                }
-                            },
-                            series: {
-                                type: 'custom',
-                                renderItem: (params, api) => {
-                                    var categoryIndex = api.value(0);
-                                    var start = api.coord([api.value(1), categoryIndex]);
-                                    var end = api.coord([api.value(2), categoryIndex]);
-                                    var height = api.size([0, 1])[1] * 0.6;
-
-                                    var rectShape = echarts.graphic.clipRectByRect({
-                                        x: start[0],
-                                        y: start[1] - height / 2,
-                                        width: end[0] - start[0],
-                                        height: height
-                                    }, {
-                                        x: params.coordSys.x,
-                                        y: params.coordSys.y,
-                                        width: params.coordSys.width,
-                                        height: params.coordSys.height
-                                    });
-
-                                    return rectShape && {
-                                        type: 'rect',
-                                        shape: rectShape,
-                                        style: api.style()
-                                    };
-                                },
-                                data: todo.get("time")
-                            }
+                query.get(oid).then(activity => {
+                    $("title").text(activity.get("title") + " - 活动详情 - 志愿活动管理系统");
+                    $("#body-container").before(`<h1>${activity.get("title")}</h1>`);
+                    attributes = [
+                        {
+                            "icon": "people-fill",
+                            "value": activity.get("participantsLimit")
+                        }, {
+                            "icon": "geo-alt-fill",
+                            "value": campuses[activity.get("campus")] + ` <i class="bi bi-chevron-right"></i> ` + activity.get("site")
+                        }, {
+                            "icon": "clock-fill",
+                            "value": `<div id="time-container" style="width: 480px; height:360px;"></div>`
+                        }
+                    ];
+                    if (activity.get("desc")) {
+                        attributes.push({
+                            "icon": "chat-square-text-fill",
+                            "value": activity.get("desc")
                         });
-                    });
-                    if (todo.get("desc")) {
-                        $("#body-table tbody").append(`
-                            <tr>
-                                <th scope="row"><i class="bi bi-chat-square-text-fill"></i></th>
-                                <td>${todo.get("desc")}</td>
-                            </tr>
-                        `);
                     }
-                    if (user.get("isAdmin")) {
-                        $("#body-table").after(`
-                            <div class="btn-group">
-                                <a href="edit.html?oid=${$.getUrlParam("oid")}" class="btn btn-outline-primary">
+                    Vue.createApp({
+                        data () {
+                            return {
+                                "isAdmin": AV.User.current().get("isAdmin"),
+                                "attributes": attributes
+                            };
+                        },
+                        template: `
+                            <div class="table-responsive">
+                                <table class="table" id="body-table"><tbody>
+                                    <tr v-for="item in attributes">
+                                        <th scope="row"><i :class="'bi bi-' + item.icon"></i></th>
+                                        <td v-html="item.value"></td>
+                                    </tr>
+                                </tbody></table>
+                            </div>
+                            <div class="btn-group" role="group">
+                                <a href="javascript: void()" class="btn btn-primary">
+                                    <i class="bi bi-calendar-plus-fill"></i>
+                                    加入意愿
+                                </a>
+                            </div>
+                            <div v-if="isAdmin" class="btn-group ms-2" role="group">
+                                <a href="edit.html?oid=${oid}" class="btn btn-secondary">
                                     <i class="bi bi-pen-fill"></i>
                                     编辑
                                 </a>
                             </div>
-                        `);
-                    }
-                }, (error) => {
-                    generateErrorAlert(error);
-                })
-            });
+                        `
+                    }).mount("#body-container");
+                    generateTimeChart("time-container", activity);
+                }, error => {
+                    $("#body-container").before(`<h1>活动详情</h1>`);
+                    getError(error);
+                });
+            }
         </script>
     </body>
 </html>

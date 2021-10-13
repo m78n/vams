@@ -9,65 +9,76 @@
         <link href="css/font-awesome.min.css" rel="stylesheet">
     </head>
     <body>
-        <main class="flex-shrink-0 mt-5 mb-5">
-            <div class="container" id="body-container">
-                <h1>目前活动一览</h1>
+        <navbar></navbar>
+        <base-layout title="目前活动一览">
+            <button class="btn btn-primary disabled placeholder-wave mb-3" type="button">
+                <i class="bi bi-geo-alt-fill"></i>
+                &emsp;&emsp;&emsp;&emsp;&emsp;
+            </button>
+            <div class="mt-2 list-group list-group-flush">
+                <a v-for="item in [0,1]" href="javascript: void();"
+                  class="list-group-item list-group-item-action disabled placeholder-wave">
+                    <h5 class="mb-1"><span class="placeholder col-6"></span></h5>
+                    <i class="bi bi-geo-alt-fill"></i> <span class="placeholder col-5"></span>
+                </a>
             </div>
-        </main>
+        </base-layout>
         
+        <script src="//code.bdstatic.com/npm/leancloud-storage@4.12.0/dist/av-min.js"></script>
         <script src="js/jquery-3.3.1.min.js"></script>
         <script src="js/bootstrap.bundle.min.js"></script>
-        <script src="//code.bdstatic.com/npm/leancloud-storage@4.12.0/dist/av-min.js"></script>
+        <script src="js/vue.global.prod.js"></script>
+        <script src="js/components.js"></script>
         <script src="js/main.js"></script>
         <script>
-            generateBody((user) => {
-                changeCampus = function (des) {
-                    AV.User.current().set("currentCampus", des).save().then((todo) => {
-                        window.location.reload();
-                    }, (error) => {
-                        generateErrorAlert(error);
-                    });
-                }
-
-                // Page Body
-                $("#body-container").append(`
-                    <div class="dropdown">
-                        <button class="btn btn-secondary dropdown-toggle" type="button" id="campus-dropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                            ${campuses[user.get("currentCampus")]}
-                        </button>
-                        <ul class="dropdown-menu" aria-labelledby="campus-dropdown" id="campus-dropdown-list"></ul>
-                    </div>
-                    <div class="mt-2 list-group list-group-flush" id="activity-list"></div>
-                `);
-                campuses.forEach((item, index) => {
-                    $("#campus-dropdown-list").append(`
-                        <li><a class="dropdown-item" href="javascript: changeCampus(${index});">${item}</a></li>
-                    `);
-                });
-
-                // Search Activities
-                query = new AV.Query("Activity");
-                query.equalTo('campus', user.get("currentCampus"));
+            if (AV.User.current()) {
+                let query = new AV.Query("Activity");
                 query.descending("createdAt");
-                query.find().then((items) => {
-                    items.forEach((item) => {
-                        let time = item.get("time");
-                        let html = `
-                            <a href="detail.html?oid=${item.get("objectId")}"
-                              class="list-group-item list-group-item-action" aria-current="true">
-                                <h5 class="mb-1">${item.get("title")}</h5>
-                                <i class="bi bi-geo-alt-fill"></i> ${item.get("site")}
-                            </a>
-                        `;
-                        $(`#activity-list`).append(html);
-                    });
-                    if (!$(`#activity-list`).text()) {
-                        $("#body-container").append(getAlert("secondary", "这里目前没有志愿活动。"));
-                    }
-                }).catch((error) => {
-                    generateErrorAlert(error);
+                campus = AV.User.current().get("currentCampus");
+                selection = Number($.getUrlParam("campus"));
+                if (selection) {
+                    isCurrent = selection == campus;
+                    campus = Number($.getUrlParam("campus"));
+                } else {
+                    isCurrent = true;
+                }
+                query.equalTo("campus", campus);
+                query.find().then(e => {
+                    Vue.createApp({
+                        data () {
+                            return {
+                                "activities": e,
+                                "campuses": campuses,
+                                "campus": campus,
+                                "isCurrent": isCurrent
+                            };
+                        },
+                        template: `
+                            <div class="dropdown mb-3">
+                                <button class="btn btn-primary dropdown-toggle"
+                                  type="button" id="btn-dropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-geo-alt-fill"></i>
+                                    {{campuses[campus]}}
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="btn-dropdown">
+                                    <li v-for="(item, index) in campuses">
+                                        <a class="dropdown-item" :href="'index.html?campus=' + index">{{item}}</a>
+                                    </li>
+                                </ul>
+                            </div>
+                            <alert v-if="!isCurrent" type="info" message="本页显示的志愿活动并非在您所在校区举行。"></alert>
+                            <alert v-if="!activities.length" type="secondary" message="这里还没有志愿活动。"></alert>
+                            <div class="mt-2 list-group list-group-flush" id="list-activities">
+                                <a v-if="activities.length" v-for="item in activities" :href="'detail.html?oid=' + item.get('objectId')"
+                                  class="list-group-item list-group-item-action" aria-current="true">
+                                    <h5 class="mb-1">{{item.get("title")}}</h5>
+                                    <i class="bi bi-geo-alt-fill"></i> {{item.get("site")}}
+                                </a>
+                            </div>
+                        `
+                    }).component("alert", alerts).mount("#body-container");
                 });
-            });
+            }
         </script>
     </body>
 </html>
